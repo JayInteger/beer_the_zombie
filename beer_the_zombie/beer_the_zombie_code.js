@@ -4,8 +4,8 @@
 	canvas.height = 530;
 	
 	var on_ground = true; 
- 
 	var gravity = 0.5; 
+	var friction = 0.8;
 
 
 	document.body.appendChild(canvas);
@@ -34,7 +34,7 @@
 	zombieImage.src = "images/enemy_dummy.png";
 
 	var player = {
-		speed:256,//movement in pixels
+		speed:3,//movement in pixels
 		x:canvas.width/2,
 		y:canvas.height/2,
 		jumping:false,
@@ -73,29 +73,41 @@
 		delete keysDown[e.keyCode];
 	});
 
-	var update = function(modifier){
+	var update = function(){
 		/*if(38 in keysDown){		//KeyUP
 			player.y -= player.speed* modifier;
 		}
 		if(40 in keysDown){		//KeyDOWN
 			player.y += player.speed* modifier;
 		}*/
-		if(37 in keysDown){		//KeyLEFT
-			player.x -= player.speed* modifier;
+		if(37 in keysDown && player.velX > -player.speed){		//KeyLEFT
+			player.velX--;
 		}
-		if(39 in keysDown){		//KeyRIGHT
-			player.x += player.speed* modifier;
+		if(39 in keysDown && player.velX < player.speed){		//KeyRIGHT
+			player.velX++;
 		}
 		if (32 in keysDown && !player.jumping){
 			player.jumping = true; 
-			player.y -= player.speed*modifier*2;
+			player.velY = -player.speed*2;
 		}
+		
+		player.x += player.velX;
+		player.y += player.velY;
+		player.velX*=friction;
+		player.velY += gravity;
+		
+		if(player.y >= canvas.height/2){
+			player.y = canvas.height/2;
+			player.jumping = false;
+		}
+		
+
 		
 	}
 var main = function(){
 	var now = Date.now();
 	var delta = now - then;
-	update(delta/1000); //pixel per second 
+	update(); //pixel per second 
 	render();
 	then = now;
 	requestAnimationFrame(main);
